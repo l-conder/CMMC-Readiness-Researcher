@@ -310,6 +310,7 @@
           <div class="srow"><div class="k">Active risk</div><div class="v empty" data-f="risk">—</div></div>
           <div class="srow"><div class="k">Source tier</div><div class="v empty" data-f="src">—</div></div>
           <div class="srow"><div class="k">Biggest unknown</div><div class="v empty" data-f="unk">What data you handle</div></div>
+          <div class="srow"><div class="k">Next question</div><div class="v empty" data-f="next">—</div></div>
         </div>
 
         <div class="snapshot" id="snap">
@@ -353,6 +354,7 @@
 const chat = document.getElementById('chat');
 const hint = document.getElementById('hint');
 let busy = false;
+let generation = 0;
 
 /* ---- state panel helpers ---- */
 function setState(field, value, pill) {
@@ -402,12 +404,12 @@ const scenarios = [
   {
     steps: [
       { who:'user', text:`A prime contractor told us we need to be CMMC compliant for a contract. Can you give me the list of controls we have to meet?` },
-      { fn: () => { setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI'); } },
+      { fn: () => { setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI'); setState('next','Does the contract involve CUI, or only FCI?'); } },
       { who:'r', text:`I'm going to hold off on the control list for a moment — handing it to you now could send you down the wrong road, and I'd rather save you that.\n\nHere's why. The number of requirements you actually owe isn't fixed; it's decided by what kind of government information you handle. Only <strong>Federal Contract Information</strong> (FCI)? You're likely looking at 15 basic safeguards you assess yourself. <strong>Controlled Unclassified Information</strong> (CUI)? You're likely in the Level 2 world of 110 NIST SP 800-171 requirements, with the assessment path — self-assessment or C3PAO certification — depending on the solicitation and contract.\n\nSo before anything else — the one question that changes everything: <strong>does the contract involve CUI, or only FCI?</strong>` },
       { who:'user', text:`Honestly I'm not sure. We make small machined parts to the prime's drawings.` },
-      { fn: () => { setState('data','Likely CUI', 'amber'); setState('conf','Low — needs confirmation','amber'); setState('level','Likely Level 2','amber'); setState('risk','Misreading data type'); setState('src','Tier 2 · official', 'green'); setState('stage','2 · Map where it lives'); setState('unk','Where the drawings actually live'); } },
+      { fn: () => { setState('data','Likely CUI', 'amber'); setState('conf','Low — needs confirmation','amber'); setState('level','Likely Level 2','amber'); setState('risk','Misreading data type'); setState('src','Tier 2 · official', 'green'); setState('stage','2 · Map where it lives'); setState('unk','Where the drawings actually live'); setState('next','Where do the drawings live once they reach you?'); } },
       { who:'r', text:`That detail matters more than it looks. Technical drawings from a defense prime are often marked CUI — but "often" isn't "always," and the binding call isn't mine or yours. It comes from your contract and the prime's flow-down.\n\nHere's the question to take to them, worded so the answer is clean: <strong>"Does this contract involve CUI, and if so, which CUI category and markings apply?"</strong>\n\nWhile you chase that — tell me where those drawings actually live once they reach you. Email? A shared drive? A machine on the shop floor? That's the next thing that shapes your scope.` },
-      { fn: () => { setState('sys','Email + shop-floor (mapping…)'); } },
+      { fn: () => { setState('sys','Email + shop-floor (mapping…)'); setState('next','—'); } },
       { who:'snapshot', data: {
         title:'Readiness Snapshot — preliminary',
         items:[
@@ -425,9 +427,9 @@ const scenarios = [
   {
     steps: [
       { who:'user', text:`A vendor told us we need to be on Rev 3 of 800-171 now since it's the newest, and that we have to buy their platform to hit all the controls. Is that right?` },
-      { fn: () => { setState('stage','Weighing a source claim'); setState('src','Tier 5 · vendor pitch','red'); setState('risk','Building to the wrong revision'); setState('unk','Which revision your contract pins'); } },
+      { fn: () => { setState('stage','Weighing a source claim'); setState('src','Tier 5 · vendor pitch','red'); setState('risk','Building to the wrong revision'); setState('unk','Which revision your contract pins'); setState('next','Which revision does your contract explicitly reference?'); } },
       { who:'r', text:`Two claims tangled together there, and I'd weigh them very differently. Let's pull them apart.\n\nFirst, the version. "Newest, therefore required" isn't how this works — the revision that binds you is the one your <strong>contract and assessment</strong> are pinned to, not whichever NIST published most recently. As things stand, CMMC is anchored to <strong>Revision 2</strong>, and assessors aren't authorized to grade against Rev 3 yet. Build to Rev 3 today and you can show up to a Rev 2 assessment with "unmet" marks against a standard you weren't being graded on.` },
-      { fn: () => { setState('stage','Weighing a source claim · part 2'); } },
+      { fn: () => { setState('stage','Weighing a source claim · part 2'); setState('next','Want to map your real gaps before evaluating tools?'); } },
       { who:'r', text:`Second — notice <strong>who's telling you</strong> you must buy their platform. That's a vendor selling a product: the lowest tier of source authority. Tooling genuinely helps with some controls — logging, configuration management, access tracking. But the requirement lives in the control text, not in any one product, and plenty of the 110 are policy and documentation no platform installs for you.\n\nSo the honest read: a tool may help with <em>part</em> of this; nothing requires <em>that specific</em> tool. Want to start by finding your real gaps, so you're buying against evidence instead of a sales pitch?`, cls:'source' },
       { who:'snapshot', data: {
         title:'Readiness Snapshot — source check',
@@ -446,9 +448,9 @@ const scenarios = [
   {
     steps: [
       { who:'user', text:`Okay, here's the actual data we handle — let me paste the spec sheet so you can tell me if it's CUI: "ASSEMBLY DWG 4471-B, MATERIAL SPEC, TOLERANCE…` },
-      { fn: () => { setState('stage','Data-handling boundary'); setState('risk','Controlled-data spillage', 'red'); setState('src','—'); } },
+      { fn: () => { setState('stage','Data-handling boundary'); setState('risk','Controlled-data spillage', 'red'); setState('src','—'); setState('next','What category is that information, and where does it live?'); } },
       { who:'r', text:`Stop there — and let me explain why, because it matters.\n\nDon't paste that, and clear it from your message if you can. A general-purpose AI tool like this one isn't a FedRAMP-authorized environment, so running potentially controlled information through it would itself be a <strong>spillage</strong> — exactly the kind of incident the rules you're working toward exist to prevent. I never want to be the reason you have one.`, cls:'flag' },
-      { fn: () => { setState('stage','Redirect to safe abstraction'); setState('risk','Contained ✓','green'); setState('data','Technical data (abstract)','amber'); } },
+      { fn: () => { setState('stage','Redirect to safe abstraction'); setState('risk','Contained ✓','green'); setState('data','Technical data (abstract)','amber'); setState('next','—'); } },
       { who:'r', text:`The good news: I don't need the contents to help you. I work on the <strong>shape</strong> of your environment, not its sensitive details.\n\nSo instead of the document — what <em>category</em> is it (technical data, a contract deliverable, something else), and <em>where does it live</em>: which system, which cloud, whose email? That's everything I need to reason about scope, and none of it is controlled information.\n\nAnd if you ever do need AI on real controlled data, there's a compliant path — a FedRAMP-authorized deployment inside your boundary, not a tool like this. Different conversation, but the door exists.` },
       { who:'snapshot', data: {
         title:'Readiness Snapshot — boundary held',
@@ -476,6 +478,7 @@ const scenarios = [
         setState('risk','Scope leak + false certainty','red');
         setState('src','Prime/vendor claims · mixed authority','amber');
         setState('unk','Whether drawings are formally CUI and Self vs C3PAO');
+        setState('next','Has the prime or contract explicitly marked the drawings as CUI, or are you inferring?');
       } },
       { who:'r', text:`Good — and thank you for keeping this as a safe summary. Don't paste the drawings, markings, contract language, tickets, or screenshots here. The categories and workflows are enough.\n\nMy read: this smells like CUI because prime-provided technical drawings for Navy work often are, but I am not going to classify it for you. The binding answer comes from the contract, solicitation, prime flow-down, and contracting officer.\n\nTwo assumptions are dangerous right away:\n\n<strong>1. "Prime says Level 2" is not enough to know the assessment path.</strong> Level 2 can be Self or C3PAO depending on the solicitation and contract.\n\n<strong>2. "SPRS 105" is not proof of readiness.</strong> A high score built on a wrong scope or weak evidence can collapse in assessment.\n\nThe one next question I would ask before controls: <strong>Has the prime or contract explicitly marked these drawings or flow-down documents as CUI, or are you inferring that from the nature of the work?</strong>` },
       { fn: () => {
@@ -483,6 +486,7 @@ const scenarios = [
         setState('sys','Email, SharePoint, laptops, USB, CNC station, tickets, backups');
         setState('risk','CUI path crosses business systems','red');
         setState('unk','Which paths are real vs assumed');
+        setState('next','Which of these data paths have you confirmed vs. assumed?');
       } },
       { who:'user', text:`We are inferring. The prime email just says Level 2. The drawings come through Outlook, sit in SharePoint, sometimes get downloaded, and ticket screenshots may include snippets.` },
       { who:'r', text:`That's the answer that changes the work. You have a likely-CUI workflow, but not a confirmed CUI determination or assessment path yet.\n\nHere is the scope hypothesis I would test:\n\n<strong>Likely CUI assets:</strong> Outlook/mailboxes, SharePoint, engineer laptops, downloaded files, traveler PDFs, USB transfer process, CNC programming station, and any ticket records containing snippets.\n\n<strong>Security protection assets:</strong> Microsoft identity/admin plane, endpoint tooling, backup tooling, logging/monitoring, and the MSP admin path.\n\n<strong>Contractor risk managed assets:</strong> personal phones with Outlook, CRM, QuickBooks, and ticketing unless you can prove CUI cannot land there.\n\n<strong>Specialized assets:</strong> CNC programming station, shop-floor systems, and removable media path.\n\nThe Rev 3 vendor claim is a source-authority problem: useful to prepare for, not your assumed CMMC assessment baseline today. CMMC Level 2 is still tied to NIST SP 800-171 Rev 2 unless your contract says otherwise.`, cls:'source' },
@@ -490,6 +494,7 @@ const scenarios = [
         setState('stage','4 · Weigh gaps');
         setState('src','Official sources outrank prime/vendor','green');
         setState('risk','No SSP + unproven scope + MSP evidence gap','red');
+        setState('next','How did the MSP calculate that SPRS 105 — which objectives were counted as met?');
       } },
       { who:'r', text:`Your top gaps are not "which control first." They are more basic:\n\n<strong>No real SSP.</strong> That means your boundary and inheritance story are not written down.\n\n<strong>Unclear SPRS basis.</strong> I would ask how the MSP calculated 105, which objectives were counted as met, and what evidence exists.\n\n<strong>MSP in scope.</strong> Global admin, backups, endpoint security, and Microsoft 365 administration are security-protection paths, not outside help magically outside the boundary.\n\n<strong>Microsoft 365 Commercial.</strong> If confirmed CUI is stored or transmitted there, you need to examine authorized cloud/FedRAMP-equivalency questions rather than treating "Microsoft" as one uniform answer.\n\n<strong>Phones and tickets.</strong> These are classic scope leaks: convenient workflow tools quietly become CUI systems.` },
       { who:'snapshot', data: {
@@ -514,16 +519,19 @@ const scenarios = [
 async function runScenario(idx) {
   if (busy) return;
   busy = true;
+  const myGen = ++generation;
   hint.style.display = 'none';
   document.getElementById('snap').classList.remove('show');
   for (let i=0;i<scenarios.length;i++) document.getElementById('scn'+i).disabled = true;
 
   for (const step of scenarios[idx].steps) {
+    if (generation !== myGen) return;
     if (step.fn) { step.fn(); await wait(350); continue; }
     if (step.who === 'user') { addMsg('user', step.text); await wait(650); }
     else if (step.who === 'r') { await rTurn(step.text, step.cls||'', 1000); await wait(300); }
     else if (step.who === 'snapshot') { showSnapshot(step.data); await wait(200); }
   }
+  if (generation !== myGen) return;
   for (let i=0;i<scenarios.length;i++) document.getElementById('scn'+i).disabled = false;
   busy = false;
 }
@@ -531,6 +539,7 @@ async function runScenario(idx) {
 /* ---- snapshot render ---- */
 let lastSnap = '';
 function showSnapshot(data) {
+  setState('next', '—');
   const body = document.getElementById('snapbody');
   body.innerHTML = '';
   let txt = data.title + '\n\n';
@@ -555,10 +564,14 @@ function copySnap() {
 
 /* =======================================================================
    FREE-TEXT INPUT — deterministic, safe.
-   Detects apparent controlled-data pastes and demonstrates the refusal.
-   Anything else gets the investigative opening move.
+   Pattern-routes five common judge-prompt types; CUI paste triggers refusal.
    ======================================================================= */
-const CUI_TRIGGERS = /\b(dwg|drawing|spec sheet|tolerance|material spec|assembly|part number|nsn|cage code|classified|secret|itar|export.?controlled|cui\/\/|distribution statement)\b/i;
+const CUI_TRIGGERS      = /\b(dwg|drawing|spec sheet|tolerance|material spec|assembly|part number|nsn|cage code|classified|secret|itar|export.?controlled|cui\/\/|distribution statement)\b/i;
+const CONTROLS_TRIGGERS = /\b(give|list|what|which).{0,30}\bcontrols?\b|\bchecklist\b|\bcontrols?\b.{0,30}\b(apply|meet|have to)\b/i;
+const SPRS_TRIGGERS     = /\bsprs\b|\bbasically\s+ready\b|\bour\s+score\b|\bposted\s+\d+\b/i;
+const REV3_TRIGGERS     = /\brev\.?\s*3\b|\brevision\s*3\b|\brev3\b/i;
+const SCOPE_TRIGGERS    = /\bout.{0,6}of.{0,6}scope\b|\bemail.{0,10}(out|scope)\b|\bscope\s+only\b|\bonly\s+sharepoint\b|\bjust\s+sharepoint\b/i;
+const COVERED_TRIGGERS  = /\bgcc.{0,5}high\b|\bare\s+we\s+covered\b|\bdoes\s+that\s+mean\b|\bcompliance\s+(platform|dashboard|software)\b|\bwe\s+bought\b/i;
 
 async function sendFree() {
   if (busy) return;
@@ -575,8 +588,29 @@ async function sendFree() {
     setState('stage','Data-handling boundary'); setState('risk','Controlled-data spillage','red');
     await rTurn(`Stop there — don't paste that, and clear it if you can. A general-purpose AI tool isn't a FedRAMP-authorized environment, so putting potentially controlled information through it would itself be a <strong>spillage</strong> — the exact thing CMMC exists to prevent.\n\nTell me instead: what <em>category</em> is that information, and <em>where does it live</em>? The shape of your environment is all I need, and none of it is controlled data.`, 'flag', 1000);
     setState('risk','Contained ✓','green');
+
+  } else if (CONTROLS_TRIGGERS.test(v)) {
+    setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI'); setState('next','Does the contract involve CUI, or only FCI?');
+    await rTurn(`Hold the checklist — handing it over now would likely send you to climb the wrong mountain.\n\nThe number of requirements isn't fixed; it depends on one fact: does this work involve <strong>Controlled Unclassified Information</strong>, or only <strong>Federal Contract Information</strong>? CUI → likely 110 NIST SP 800-171 requirements. FCI only → likely 15 basic safeguards, self-assessed.\n\nTell me what the work is and who the customer is, and we'll reason toward the right question for your contracting officer.\n\n<em>(Full investigation in a Claude Project.)</em>`, '', 1000);
+
+  } else if (SPRS_TRIGGERS.test(v)) {
+    setState('stage','4 · Weigh the gaps'); setState('risk','Score may not reflect real scope','amber'); setState('next','How was the SPRS calculated, and what evidence exists for each met control?');
+    await rTurn(`That score is worth investigating before treating it as a green light. SPRS is self-assessed — it reflects what someone believed was met at the time. Two things make a high number misleading: a scope that missed where CUI actually lives, and controls counted as met without the evidence an assessor would demand.\n\nWalk me through how it was calculated: who did it, when, which controls were counted as fully met, and what evidence exists for each. The number on its own tells me less than the story behind it.\n\n<em>(Full investigation in a Claude Project.)</em>`, '', 1000);
+
+  } else if (REV3_TRIGGERS.test(v)) {
+    setState('stage','Weighing a source claim'); setState('src','Tier 5 · vendor pitch','red'); setState('risk','Building to wrong revision','red'); setState('next','Which revision does your contract explicitly reference?');
+    await rTurn(`"Newest, therefore required" isn't how this works — and it's the most common vendor trap in this space.\n\nThe version that binds you is the one your <strong>contract and assessment</strong> are pinned to. Right now CMMC is anchored to <strong>Revision 2</strong> (110 requirements, 14 families). Rev 3 is restructured and coming — 97 requirements, different families — but assessors aren't authorized to grade against it yet. Building to Rev 3 today can leave you with gaps at a Rev 2 assessment you didn't need.\n\nConfirm what revision your contract references before anyone rebuilds anything. Source: <a href="https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final" target="_blank" rel="noopener">NIST SP 800-171 Rev 2</a>.\n\n<em>(Full investigation in a Claude Project.)</em>`, 'source', 1000);
+
+  } else if (SCOPE_TRIGGERS.test(v)) {
+    setState('stage','2 · Map where data lives'); setState('risk','Scope based on intent not paths','red'); setState('next','What does the actual data flow look like from intake to everywhere it lands?');
+    await rTurn(`That boundary is worth testing before assuming it holds. Scope follows actual paths, not stated intentions.\n\nIf email delivers drawings, mailboxes are candidates. If an MSP has admin access, that's a security-protection path inside the boundary. If engineers sync folders to laptops, those endpoints are candidates. Tickets with screenshots, phone mail clients, backups — each is a place assessors find CUI that wasn't in the "secure folder."\n\nWhat does the actual flow look like from when the data arrives to everywhere it eventually lands?\n\n<em>(Full investigation in a Claude Project.)</em>`, '', 1000);
+
+  } else if (COVERED_TRIGGERS.test(v)) {
+    setState('stage','3 · Establish the obligation'); setState('risk','Inheritance misunderstood','amber'); setState('next','What does your SSP say the provider covers vs. your side?');
+    await rTurn(`Owning a tool or a cloud service reduces the work — it doesn't finish it. GCC High, FedRAMP services, and compliance platforms cover controls they're responsible for in the shared model. The contractor's side stays with the contractor: policy, user configuration, evidence, and anything the provider doesn't own.\n\nThe sharp question: what does your SSP say the provider covers versus what stays on your side? A platform that logs events doesn't write your logging policy, configure retention, or prove review cadence.\n\n<em>(Full investigation in a Claude Project.)</em>`, '', 1000);
+
   } else {
-    setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI');
+    setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI'); setState('next','Does the contract involve CUI, or only FCI?');
     await rTurn(`Good — let's start there, and one thing up front so you can relax: I never need your actual sensitive data, just its <strong>type</strong> and where it lives.\n\nThe question that shapes everything else: does your work involve <strong>CUI</strong> (the sensitive category that points toward Level 2 and 110 NIST SP 800-171 requirements) or only <strong>FCI</strong> (the basic tier — 15 safeguards)? If you're not sure, tell me what the work is and who the customer is, and we'll reason toward the right question for your contracting officer.\n\n<em>(This is a scripted demo — for a full back-and-forth, drop the folder into a Claude Project. The scenarios above show the researcher's range.)</em>`, '', 1000);
   }
   busy = false;
@@ -585,9 +619,12 @@ async function sendFree() {
 /* ---- gate + reset ---- */
 function enterLab(){ document.getElementById('gate').style.display = 'none'; }
 function resetLab(){
+  generation++;
+  busy = false;
+  for (let i = 0; i < 4; i++) { const b = document.getElementById('scn'+i); if (b) b.disabled = false; }
   chat.innerHTML = ''; hint.style.display = 'block';
   document.getElementById('snap').classList.remove('show');
-  const defaults = [['stage','Not started','empty'],['data','Unknown','empty'],['conf','—','empty'],['sys','Not yet mapped','empty'],['level','Undetermined','empty'],['risk','—','empty'],['src','—','empty'],['unk','What data you handle','empty']];
+  const defaults = [['stage','Not started','empty'],['data','Unknown','empty'],['conf','—','empty'],['sys','Not yet mapped','empty'],['level','Undetermined','empty'],['risk','—','empty'],['src','—','empty'],['unk','What data you handle','empty'],['next','—','empty']];
   defaults.forEach(([f,val])=>{ const el=document.querySelector(`[data-f="${f}"]`); el.className='v empty'; el.textContent=val; });
 }
 </script>
