@@ -88,6 +88,8 @@ is the methodology — Interpretable Context Methodology — made visible.
   whether the folder really investigates.
 - `DEEP_TEST.md` — a realistic machine-shop scenario that stress-tests scoping,
   source authority, evidence, POA&M judgment, and safe data handling.
+- `MULTI_TURN_TEST.md` — the same kind of pressure tested as a real drip-feed
+  conversation, one messy detail at a time.
 - `SPEC.md` — the build spec for an optional interactive web demo that proves the
   folder's behavior without replacing it.
 

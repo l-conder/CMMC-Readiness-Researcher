@@ -174,3 +174,7 @@ For a longer, harder evaluation, run `DEEP_TEST.md`. That scenario tests whether
 the researcher can sustain the same investigative posture across scope mapping,
 SPRS, MSP involvement, Rev. 3 pressure, missing SSP, and a realistic shop-floor
 workflow.
+
+For the most realistic evaluation, run `MULTI_TURN_TEST.md`. That test checks
+whether the researcher remembers facts, revises assumptions, and asks the next
+best question when the user reveals the same situation gradually.

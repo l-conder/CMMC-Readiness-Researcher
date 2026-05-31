@@ -115,7 +115,8 @@ Readiness Snapshot
 - Scope boundary: email, SharePoint, engineer laptops, traveler PDF workflow,
   CNC programming station, USB transfer process, MSP-administered M365/endpoint/
   backup/security tooling, and any ticketing records that contain CUI snippets.
-- Scope risks: Microsoft 365 Commercial vs authorized CUI environment, MSP admin
+- Scope risks: Microsoft 365 Commercial needs authorization/equivalency and
+  boundary verification before treating it as a CUI environment; MSP admin
   access, personal phones with Outlook, screenshots in tickets, USB movement,
   unmanaged local downloads, backups.
 - Evidence gaps: no SSP, unclear SPRS basis, no documented scope map, unclear

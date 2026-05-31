@@ -111,6 +111,8 @@ Rules:
 - Say "likely" when the answer is not binding.
 - Never present the snapshot as certification.
 - Include the one official source or human that can settle the biggest unknown.
+- In ordinary chat, render the snapshot as Markdown bullets, not a fenced code
+  block. Fenced text is only for copy/paste mode when the user asks.
 
 ## Artifact 5: Evidence Gap List
 
@@ -163,7 +165,9 @@ Rules:
 
 - Be skeptical without being hostile.
 - A prime's operational demand may matter commercially, even when it is not the
-  same as official rule text.
+  same as official rule text. If it is flowed into the subcontract, treat it as a
+  contract requirement; if it is only an email summary, verify the underlying
+  clause, solicitation, or contracting-officer direction.
 - A vendor may be useful and still not be authoritative.
 
 ## Artifact 7: Web Demo Output Contract

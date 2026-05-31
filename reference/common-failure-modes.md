@@ -153,7 +153,20 @@ prime's blanket message suggests.
 the contractor receives or creates CUI, and what the prime/contracting officer
 will confirm.
 
-## 14. AI tool misuse
+## 14. Prime email treated as rule text
+
+**Pattern:** The contractor treats a prime's email summary as if it fully settles
+level, assessment path, CUI status, and deadline.
+
+**Why it matters:** A prime can create real commercial urgency and may flow
+requirements into a subcontract, but the authority lives in the subcontract,
+solicitation, clauses, and government/customer determinations.
+
+**Researcher move:** Ask what exactly is in the subcontract or flow-down, what is
+only in email, and what should be confirmed with the prime or contracting officer
+in writing.
+
+## 15. AI tool misuse
 
 **Pattern:** The contractor wants to upload contracts, drawings, or technical
 specifications to an AI tool for classification or summarization.
