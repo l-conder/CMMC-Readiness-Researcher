@@ -32,6 +32,7 @@ I.scenarios. Preloaded safe demo prompts.
 I.export. Copy/download safe Readiness Snapshot.
 I.env. Optional API key/model config kept out of repo.
 I.docs. README/JUDGE_GUIDE/SPEC describe install, run, test, and demo path.
+I.demo. Static deterministic demo lives at docs/index.html.
 
 ## §V
 
@@ -52,17 +53,17 @@ V13. Judge path: a stranger can open README, run demo, test adversarial prompts,
 ## §T
 
 id|status|task|cites
-T1|.|Choose stack and repo shape for web demo|C13,C14,V8,V11
-T2|.|Create app shell with chat, state panel, source drawer, and scenario rail|I.web,I.chat,I.state,I.sources,I.scenarios,V7,V11
-T3|.|Add pre-chat safety gate and persistent no-sensitive-data banner|C2,C3,V1,V12
-T4|.|Build deterministic demo engine for safe scenarios|C4,C14,I.scenarios,V3,V4,V5,V6,V8,V9
+T1|x|Choose stack and repo shape for web demo|C13,C14,V8,V11
+T2|x|Create app shell with chat, state panel, source drawer, and scenario rail|I.web,I.chat,I.state,I.sources,I.scenarios,V7,V11
+T3|x|Add pre-chat safety gate and persistent no-sensitive-data banner|C2,C3,V1,V12
+T4|x|Build deterministic demo engine for safe scenarios|C4,C14,I.scenarios,V3,V4,V5,V6,V8,V9
 T5|.|Create prompt/context bundle from researcher markdown files|C1,C15,V2
 T6|.|Add optional model backend adapter with env config|I.chat,I.env,C15,V1,V2,V12
-T7|.|Implement investigation state extraction from safe abstractions|I.state,V7,V10
-T8|.|Implement Readiness Snapshot copy/download|I.export,V9,V12
-T9|.|Add source drawer using reference/source-list.md|I.sources,C7,V5
+T7|x|Implement investigation state extraction from safe abstractions|I.state,V7,V10
+T8|x|Implement Readiness Snapshot copy/download|I.export,V9,V12
+T9|x|Add source drawer using reference/source-list.md|I.sources,C7,V5
 T10|.|Add adversarial test fixtures from JUDGE_GUIDE.md|I.docs,V1,V3,V4,V5,V6,V13
-T11|.|Write web app README section: run, deploy, demo, safety limits|I.docs,C10,C11,C12,V13
+T11|x|Write web app README section: run, deploy, demo, safety limits|I.docs,C10,C11,C12,V13
 T12|.|Create screenshots or short demo-video script|C11,V13
 T13|.|Run local manual QA on desktop and mobile viewports|V11,V13
 T14|.|Run full judge prompt suite and record pass/fail notes|V1,V3,V4,V5,V6,V7,V9,V13

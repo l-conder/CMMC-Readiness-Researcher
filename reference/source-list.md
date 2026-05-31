@@ -18,7 +18,7 @@ official DoD framing. This is the first stop for "what is the current CMMC
 program posture?"
 
 **CMMC Program rule, 32 CFR Part 170**  
-https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-M/part-170
+https://www.ecfr.gov/current/title-32/part-170
 
 Use for the current codified CMMC program rule. When a blog, vendor, or prime says
 "CMMC requires X," this is one of the highest-authority places to verify the
@@ -37,21 +37,21 @@ Use for how CMMC requirements enter solicitations and contracts. This is critica
 when the question is not "what is CMMC?" but "when does it appear in a contract?"
 
 **DFARS 252.204-7021**  
-https://www.acquisition.gov/dfars/252.204-7021-cybersecurity-maturity-model-certification-requirements.
+https://www.acquisition.gov/dfars/252.204-7021-cybersecurity-maturity-model-certification-requirements
 
 Use for the CMMC contract clause itself. If the user is asking whether a contract
 requires CMMC, the clause language and the contracting officer matter more than
 general commentary.
 
 **DFARS 252.204-7012**  
-https://www.acquisition.gov/dfars/252.204-7012-safeguarding-covered-defense-information-and-cyber-incident-reporting.
+https://www.acquisition.gov/dfars/252.204-7012-safeguarding-covered-defense-information-and-cyber-incident-reporting
 
 Use for safeguarding covered defense information and cyber incident reporting.
 This is one of the key contractual hooks for CUI handling in defense contracts.
 
 **DFARS 252.204-7019 and 252.204-7020**  
-https://www.acquisition.gov/dfars/252.204-7019-notice-nist-sp-800-171-dod-assessment-requirements.  
-https://www.acquisition.gov/dfars/252.204-7020-nist-sp-800-171-dod-assessment-requirements.
+https://www.acquisition.gov/dfars/252.204-7019-notice-nist-sp-800-171-dod-assessment-requirements  
+https://www.acquisition.gov/dfars/252.204-7020-nist-sp-800-171-dod-assessment-requirements
 
 Use for SPRS and DoD assessment requirement questions. These clauses often matter
 before a formal CMMC certification requirement appears.
@@ -66,8 +66,8 @@ Information. This is the Level 1 / FCI baseline source.
 
 ## NIST standards and assessment material
 
-**NIST SP 800-171 Rev. 2**  
-https://csrc.nist.gov/pubs/sp/800/171/r2/final
+**NIST SP 800-171 Rev. 2, Update 1**  
+https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final
 
 Use for the 110-requirement baseline CMMC Level 2 is currently built around. If
 the user asks "what control text applies to me today," this is usually the working

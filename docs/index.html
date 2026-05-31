@@ -319,11 +319,11 @@
           <h3>Source Authority</h3>
           <span class="sub">Why one source beats another</span>
         </div>
-        <div class="src t1"><div class="tier">Tier 1 · Ground truth</div><div class="name"><a href="https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final" target="_blank" rel="noopener">NIST SP 800-171 Rev 2</a> — the control text itself</div></div>
-        <div class="src"><div class="tier">Tier 2 · Official guidance</div><div class="name"><a href="https://dodcio.defense.gov/CMMC/" target="_blank" rel="noopener">DoD CMMC program</a> · <a href="https://www.acquisition.gov/far/52.204-21" target="_blank" rel="noopener">FAR 52.204-21</a></div></div>
-        <div class="src"><div class="tier">Tier 3 · Accredited practitioner</div><div class="name"><a href="https://cyberab.org/" target="_blank" rel="noopener">The Cyber AB</a> — C3PAOs, registered practitioners</div></div>
-        <div class="src"><div class="tier">Tier 4 · CUI registry</div><div class="name"><a href="https://www.archives.gov/cui/registry/category-list" target="_blank" rel="noopener">NARA CUI categories</a></div></div>
-        <div class="src t5"><div class="tier">Tier 5 · Lowest · flag it</div><div class="name">Vendor marketing & blogs — where most misconceptions start</div></div>
+        <div class="src t1"><div class="tier">Tier 1 · Rule text and standards</div><div class="name"><a href="https://www.ecfr.gov/current/title-32/part-170" target="_blank" rel="noopener">32 CFR Part 170</a> · <a href="https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final" target="_blank" rel="noopener">NIST SP 800-171 Rev 2</a></div></div>
+        <div class="src"><div class="tier">Tier 2 · Official guidance and registries</div><div class="name"><a href="https://dodcio.defense.gov/CMMC/" target="_blank" rel="noopener">DoD CMMC program</a> · <a href="https://www.acquisition.gov/far/52.204-21" target="_blank" rel="noopener">FAR 52.204-21</a> · <a href="https://www.archives.gov/cui/registry/category-list" target="_blank" rel="noopener">NARA CUI Registry</a> · <a href="https://cyberab.org/" target="_blank" rel="noopener">The Cyber AB</a></div></div>
+        <div class="src"><div class="tier">Tier 3 · Accredited practitioner interpretation</div><div class="name">C3PAO / Registered Practitioner guidance — useful, but still interpretation</div></div>
+        <div class="src"><div class="tier">Tier 4 · Specialist commentary</div><div class="name">Compliance explainers — good orientation, not binding authority</div></div>
+        <div class="src t5"><div class="tier">Tier 5 · Lowest · flag it</div><div class="name">Vendor marketing & blogs — where many misconceptions start</div></div>
       </div>
     </div>
 
@@ -398,7 +398,7 @@ const scenarios = [
     steps: [
       { who:'user', text:`A prime contractor told us we need to be CMMC compliant for a contract. Can you give me the list of controls we have to meet?` },
       { fn: () => { setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI'); } },
-      { who:'r', text:`I'm going to hold off on the control list for a moment — handing it to you now could send you down the wrong road, and I'd rather save you that.\n\nHere's why. The number of requirements you actually owe isn't fixed; it's decided by what kind of government information you handle. Only <strong>Federal Contract Information</strong> (FCI)? You're likely looking at 15 basic safeguards you assess yourself. <strong>Controlled Unclassified Information</strong> (CUI)? That's the full 110 requirements, and an outside assessor after the rollout phases in.\n\nSo before anything else — the one question that changes everything: <strong>does the contract involve CUI, or only FCI?</strong>` },
+      { who:'r', text:`I'm going to hold off on the control list for a moment — handing it to you now could send you down the wrong road, and I'd rather save you that.\n\nHere's why. The number of requirements you actually owe isn't fixed; it's decided by what kind of government information you handle. Only <strong>Federal Contract Information</strong> (FCI)? You're likely looking at 15 basic safeguards you assess yourself. <strong>Controlled Unclassified Information</strong> (CUI)? You're likely in the Level 2 world of 110 NIST SP 800-171 requirements, with the assessment path — self-assessment or C3PAO certification — depending on the solicitation and contract.\n\nSo before anything else — the one question that changes everything: <strong>does the contract involve CUI, or only FCI?</strong>` },
       { who:'user', text:`Honestly I'm not sure. We make small machined parts to the prime's drawings.` },
       { fn: () => { setState('data','Likely CUI', 'amber'); setState('conf','Low — needs confirmation','amber'); setState('level','Likely Level 2','amber'); setState('risk','Misreading data type'); setState('src','Tier 2 · official', 'green'); setState('stage','2 · Map where it lives'); setState('unk','Where the drawings actually live'); } },
       { who:'r', text:`That detail matters more than it looks. Technical drawings from a defense prime are often marked CUI — but "often" isn't "always," and the binding call isn't mine or yours. It comes from your contract and the prime's flow-down.\n\nHere's the question to take to them, worded so the answer is clean: <strong>"Does this contract involve CUI, and if so, which CUI category and markings apply?"</strong>\n\nWhile you chase that — tell me where those drawings actually live once they reach you. Email? A shared drive? A machine on the shop floor? That's the next thing that shapes your scope.` },
@@ -407,7 +407,7 @@ const scenarios = [
         title:'Readiness Snapshot — preliminary',
         items:[
           ['Data type','Likely CUI (technical drawings) — <b>confirm with prime/CO</b>'],
-          ['Likely level','Level 2 (110 requirements) if CUI is confirmed'],
+          ['Likely level','Level 2 (110 requirements) if CUI is confirmed; assessment path still contract-dependent'],
           ['Binding next step','Ask the contracting officer the CUI-category question, verbatim'],
           ['Scope to map','Everywhere the drawings land — email, shared drives, shop-floor machines'],
           ['Open risk','Assuming Level 1 to save effort, then failing assessment on scope'],
@@ -526,7 +526,7 @@ async function sendFree() {
     setState('risk','Contained ✓','green');
   } else {
     setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI');
-    await rTurn(`Good — let's start there, and one thing up front so you can relax: I never need your actual sensitive data, just its <strong>type</strong> and where it lives.\n\nThe question that shapes everything else: does your work involve <strong>CUI</strong> (the sensitive category — the full 110 requirements) or only <strong>FCI</strong> (the basic tier — 15 safeguards)? If you're not sure, tell me what the work is and who the customer is, and we'll reason toward the right question for your contracting officer.\n\n<em>(This is a scripted demo — for a full back-and-forth, drop the folder into a Claude Project. The three scenarios above show the researcher's full range.)</em>`, '', 1000);
+    await rTurn(`Good — let's start there, and one thing up front so you can relax: I never need your actual sensitive data, just its <strong>type</strong> and where it lives.\n\nThe question that shapes everything else: does your work involve <strong>CUI</strong> (the sensitive category that points toward Level 2 and 110 NIST SP 800-171 requirements) or only <strong>FCI</strong> (the basic tier — 15 safeguards)? If you're not sure, tell me what the work is and who the customer is, and we'll reason toward the right question for your contracting officer.\n\n<em>(This is a scripted demo — for a full back-and-forth, drop the folder into a Claude Project. The scenarios above show the researcher's range.)</em>`, '', 1000);
   }
   busy = false;
 }

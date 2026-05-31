@@ -58,6 +58,13 @@ ask yourself.
 If you only do one thing: describe your actual situation and let it interrogate
 it. The value is in the questions.
 
+## Live demo
+
+Open `docs/index.html` to try the scripted Demo Lab. It is intentionally
+deterministic: no login, no API key, no data leaving the browser. The demo is not
+the researcher itself; it is a proof surface showing the folder's safety boundary,
+source weighing, first-question behavior, and readiness snapshot pattern.
+
 ---
 
 ## What's in the folder, and why
@@ -79,6 +86,8 @@ is the methodology — Interpretable Context Methodology — made visible.
   wrong answer beside the researcher's right one. Voice and behavior, demonstrated.
 - `JUDGE_GUIDE.md` — adversarial prompts and pass/fail criteria for testing
   whether the folder really investigates.
+- `DEEP_TEST.md` — a realistic machine-shop scenario that stress-tests scoping,
+  source authority, evidence, POA&M judgment, and safe data handling.
 - `SPEC.md` — the build spec for an optional interactive web demo that proves the
   folder's behavior without replacing it.
 

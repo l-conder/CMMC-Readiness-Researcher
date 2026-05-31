@@ -169,3 +169,8 @@ The strongest possible demo response should include:
 - a reason the question matters
 - the source or authority that will eventually settle the issue
 - a safe next step that does not require pasting sensitive data
+
+For a longer, harder evaluation, run `DEEP_TEST.md`. That scenario tests whether
+the researcher can sustain the same investigative posture across scope mapping,
+SPRS, MSP involvement, Rev. 3 pressure, missing SSP, and a realistic shop-floor
+workflow.

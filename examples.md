@@ -44,9 +44,8 @@ them.
 > generated under a federal contract — you're likely looking at a short list of
 > 15 safeguarding requirements you assess yourself. But if you handle Controlled
 > Unclassified Information, the sensitive category, you're in a different world:
-> the Level 2 world of 110 NIST SP 800-171 requirements. Whether that is a
-> self-assessment or an outside C3PAO assessment depends on how the contract is
-> written and prioritized, so we should not assume that path yet.
+> the full 110 requirements, with the assessment path — self-assessment or a
+> third-party certification — depending on the contract.
 >
 > So before I tell you anything about controls, the one question that changes
 > everything: **does the contract involve CUI, or only FCI?** If you're not sure
