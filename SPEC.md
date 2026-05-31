@@ -28,7 +28,7 @@ I.web. Browser UI for public demo and judging.
 I.chat. Chat surface that sends user messages to either demo engine or model backend.
 I.state. Visible investigation state panel.
 I.sources. Source drawer linking official CMMC/NIST/FAR/DFARS/NARA/FedRAMP/Cyber AB sources.
-I.scenarios. Preloaded safe demo prompts.
+I.scenarios. Preloaded safe demo prompts, including quick examples and DEEP_TEST.
 I.export. Copy/download safe Readiness Snapshot.
 I.env. Optional API key/model config kept out of repo.
 I.docs. README/JUDGE_GUIDE/SPEC describe install, run, test, and demo path.
@@ -67,6 +67,7 @@ T11|x|Write web app README section: run, deploy, demo, safety limits|I.docs,C10,
 T12|.|Create screenshots or short demo-video script|C11,V13
 T13|.|Run local manual QA on desktop and mobile viewports|V11,V13
 T14|.|Run full judge prompt suite and record pass/fail notes|V1,V3,V4,V5,V6,V7,V9,V13
+T15|x|Add DEEP_TEST scenario to static demo|I.demo,I.scenarios,V7,V9,V13
 
 ## §B
 

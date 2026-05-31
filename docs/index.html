@@ -120,7 +120,8 @@
   /* ---- Scenario rail ---------------------------------------------------- */
   .scenarios { padding: 14px 16px; border-bottom: 1px solid var(--line-soft); }
   .scenarios .lbl { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 10px; }
-  .scn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .scn-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 1100px) { .scn-grid { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 560px) { .scn-grid { grid-template-columns: 1fr; } }
   .scn {
     text-align: left; font-family: inherit; cursor: pointer;
@@ -277,6 +278,10 @@
             <span class="t">“Let me paste our spec sheet”</span>
             <span class="d">Watch it stop a controlled-data spillage cold.</span>
           </button>
+          <button class="scn" id="scn3" onclick="runScenario(3)">
+            <span class="t">“Machine shop deep test”</span>
+            <span class="d">Watch it map scope, evidence, sources, and first actions.</span>
+          </button>
         </div>
       </div>
 
@@ -331,7 +336,7 @@
 
   <footer class="foot">
     <div class="wrap" style="padding:0">
-      <p><b>What this is.</b> A folder-canonical demonstration of the CMMC Readiness Researcher, an ICM (Interpretable Context Methodology) build. The folder is the brain; this page is a viewer over it. Scenarios are scripted from the researcher's own <code>examples.md</code>.</p>
+      <p><b>What this is.</b> A folder-canonical demonstration of the CMMC Readiness Researcher, an ICM (Interpretable Context Methodology) build. The folder is the brain; this page is a viewer over it. Scenarios are scripted from the researcher's own <code>examples.md</code> and <code>DEEP_TEST.md</code>.</p>
       <p><b>What it is not.</b> It does not certify anyone (only a C3PAO or the government does), does not give legal advice, and does not make the binding CUI determination — that comes from your contract and your government customer. For AI on real controlled data, the compliant route is a FedRAMP-authorized deployment, not a tool like this.</p>
       <p style="margin-top:14px;color:var(--ink-mute)">Built as an applied proof of method · <a href="https://github.com/l-conder/CMMC-Readiness-Researcher" target="_blank" rel="noopener">View the folder on GitHub</a></p>
     </div>
@@ -341,8 +346,8 @@
 <script>
 /* =======================================================================
    FOLDER-CANONICAL DEMO ENGINE
-   Scenarios are transcribed from the researcher's examples.md so the app
-   demonstrates real behavior, not a paraphrase. No network, no storage.
+   Scenarios are transcribed from the researcher's examples.md and DEEP_TEST.md
+   so the app demonstrates real behavior, not a paraphrase. No network, no storage.
    ======================================================================= */
 
 const chat = document.getElementById('chat');
@@ -388,7 +393,7 @@ async function rTurn(text, cls='', delay=900) {
 }
 
 /* =======================================================================
-   SCENARIO SCRIPTS  (drawn from examples.md, Examples 1, 3, 2)
+   SCENARIO SCRIPTS  (drawn from examples.md + DEEP_TEST.md)
    Each step updates the live state panel so the investigation is visible.
    ======================================================================= */
 
@@ -457,6 +462,52 @@ const scenarios = [
       }}
     ]
   }
+  ,
+
+  /* 3 — "Machine shop deep test"  (DEEP_TEST.md: sustained scoping + evidence) */
+  {
+    steps: [
+      { who:'user', text:`We are an 18-person machine shop in Ohio. A Navy prime told us we need CMMC for a subcontract next year.\n\nSafe summary only: drawings arrive by email, engineers save them to SharePoint, two engineers download them to laptops, and the shop floor gets traveler PDFs by USB to a CNC programming station. We use Microsoft 365 Commercial, not GCC High. Our MSP has global admin, manages backups and endpoint security. We use ticketing, QuickBooks, a CRM, and personal phones with Outlook. Prime says "all subs need Level 2" but not Self vs C3PAO. SPRS score is 105 from last year, done by the MSP. No real SSP. Vendor says rebuild for Rev 3 and buy their platform. Please investigate — no control checklist yet.` },
+      { fn: () => {
+        setState('stage','1 · Establish data + authority');
+        setState('data','Likely CUI', 'amber');
+        setState('conf','Medium likelihood · not binding','amber');
+        setState('level','Likely Level 2 · path unknown','amber');
+        setState('risk','Scope leak + false certainty','red');
+        setState('src','Prime/vendor claims · mixed authority','amber');
+        setState('unk','Whether drawings are formally CUI and Self vs C3PAO');
+      } },
+      { who:'r', text:`Good — and thank you for keeping this as a safe summary. Don't paste the drawings, markings, contract language, tickets, or screenshots here. The categories and workflows are enough.\n\nMy read: this smells like CUI because prime-provided technical drawings for Navy work often are, but I am not going to classify it for you. The binding answer comes from the contract, solicitation, prime flow-down, and contracting officer.\n\nTwo assumptions are dangerous right away:\n\n<strong>1. "Prime says Level 2" is not enough to know the assessment path.</strong> Level 2 can be Self or C3PAO depending on the solicitation and contract.\n\n<strong>2. "SPRS 105" is not proof of readiness.</strong> A high score built on a wrong scope or weak evidence can collapse in assessment.\n\nThe one next question I would ask before controls: <strong>Has the prime or contract explicitly marked these drawings or flow-down documents as CUI, or are you inferring that from the nature of the work?</strong>` },
+      { fn: () => {
+        setState('stage','2 · Map where data lives');
+        setState('sys','Email, SharePoint, laptops, USB, CNC station, tickets, backups');
+        setState('risk','CUI path crosses business systems','red');
+        setState('unk','Which paths are real vs assumed');
+      } },
+      { who:'user', text:`We are inferring. The prime email just says Level 2. The drawings come through Outlook, sit in SharePoint, sometimes get downloaded, and ticket screenshots may include snippets.` },
+      { who:'r', text:`That's the answer that changes the work. You have a likely-CUI workflow, but not a confirmed CUI determination or assessment path yet.\n\nHere is the scope hypothesis I would test:\n\n<strong>Likely CUI assets:</strong> Outlook/mailboxes, SharePoint, engineer laptops, downloaded files, traveler PDFs, USB transfer process, CNC programming station, and any ticket records containing snippets.\n\n<strong>Security protection assets:</strong> Microsoft identity/admin plane, endpoint tooling, backup tooling, logging/monitoring, and the MSP admin path.\n\n<strong>Contractor risk managed assets:</strong> personal phones with Outlook, CRM, QuickBooks, and ticketing unless you can prove CUI cannot land there.\n\n<strong>Specialized assets:</strong> CNC programming station, shop-floor systems, and removable media path.\n\nThe Rev 3 vendor claim is a source-authority problem: useful to prepare for, not your assumed CMMC assessment baseline today. CMMC Level 2 is still tied to NIST SP 800-171 Rev 2 unless your contract says otherwise.`, cls:'source' },
+      { fn: () => {
+        setState('stage','4 · Weigh gaps');
+        setState('src','Official sources outrank prime/vendor','green');
+        setState('risk','No SSP + unproven scope + MSP evidence gap','red');
+      } },
+      { who:'r', text:`Your top gaps are not "which control first." They are more basic:\n\n<strong>No real SSP.</strong> That means your boundary and inheritance story are not written down.\n\n<strong>Unclear SPRS basis.</strong> I would ask how the MSP calculated 105, which objectives were counted as met, and what evidence exists.\n\n<strong>MSP in scope.</strong> Global admin, backups, endpoint security, and Microsoft 365 administration are security-protection paths, not outside help magically outside the boundary.\n\n<strong>Microsoft 365 Commercial.</strong> If confirmed CUI is stored or transmitted there, you need to examine authorized cloud/FedRAMP-equivalency questions rather than treating "Microsoft" as one uniform answer.\n\n<strong>Phones and tickets.</strong> These are classic scope leaks: convenient workflow tools quietly become CUI systems.` },
+      { who:'snapshot', data: {
+        title:'Readiness Snapshot — deep test',
+        items:[
+          ['Likely data type','Likely CUI, but not binding until confirmed by the prime/contracting officer'],
+          ['Likely obligation','Level 2 if CUI is confirmed; Self vs C3PAO still depends on solicitation/contract'],
+          ['Scope boundary','Email, SharePoint, laptops, traveler PDFs, USB process, CNC programming station, MSP-administered M365/endpoint/backup tooling, and ticket records with snippets'],
+          ['Scope risks','M365 Commercial, MSP global admin, personal phones, screenshots in tickets, backups, unmanaged downloads, removable media'],
+          ['Evidence gaps','No SSP, unclear SPRS calculation, no documented scope map, unclear inherited controls, unclear MSP evidence package'],
+          ['Source confidence','Prime email matters operationally, but official rule text and contract language settle the assessment path; vendor Rev 3 claim is low-authority'],
+          ['First action','Ask prime/CO in writing whether drawings are CUI, what category/marking applies, and whether Level 2 Self or C3PAO is required'],
+          ['Second action','Draft the scope map before buying tools'],
+          ['Third action','Start the SSP around the actual boundary, inherited controls, MSP role, and evidence gaps'],
+        ]
+      }}
+    ]
+  }
 ];
 
 /* ---- scenario runner ---- */
@@ -465,7 +516,7 @@ async function runScenario(idx) {
   busy = true;
   hint.style.display = 'none';
   document.getElementById('snap').classList.remove('show');
-  for (let i=0;i<3;i++) document.getElementById('scn'+i).disabled = true;
+  for (let i=0;i<scenarios.length;i++) document.getElementById('scn'+i).disabled = true;
 
   for (const step of scenarios[idx].steps) {
     if (step.fn) { step.fn(); await wait(350); continue; }
@@ -473,7 +524,7 @@ async function runScenario(idx) {
     else if (step.who === 'r') { await rTurn(step.text, step.cls||'', 1000); await wait(300); }
     else if (step.who === 'snapshot') { showSnapshot(step.data); await wait(200); }
   }
-  for (let i=0;i<3;i++) document.getElementById('scn'+i).disabled = false;
+  for (let i=0;i<scenarios.length;i++) document.getElementById('scn'+i).disabled = false;
   busy = false;
 }
 
