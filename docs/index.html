@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMMC Readiness Researcher — Demo Lab</title>
+<meta name="description" content="A demonstration of the CMMC Readiness Researcher: an investigative, source-aware AI research partner that never asks for controlled data. Folder-canonical demo, no sign-in, no data leaves your browser." />
+<style>
+  /* ---- Type & tokens ---------------------------------------------------- */
+  @import url('https://fonts.googleapis.com/css2?family=Spline+Sans+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap');
+
+  :root {
+    --bg:            #0c0f0e;
+    --panel:         #121716;
+    --panel-2:       #0f1413;
+    --line:          #233029;
+    --line-soft:     #1a221e;
+    --ink:           #e8efe9;
+    --ink-soft:      #9fb0a6;
+    --ink-mute:      #5f7068;
+    --accent:        #46c98a;
+    --accent-dim:    rgba(70,201,138,0.12);
+    --amber:         #d9a441;
+    --red:           #e0654f;
+    --user-bubble:   #1b2420;
+    --r-bubble:      #0f1413;
+    --radius:        4px;
+    --maxw:          1240px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body {
+    font-family: 'Spline Sans Mono', ui-monospace, monospace;
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(circle at 12% -10%, rgba(70,201,138,0.06), transparent 45%),
+                      radial-gradient(circle at 100% 0%, rgba(70,201,138,0.04), transparent 40%);
+    min-height: 100vh;
+  }
+  h1,h2,h3 { font-family: 'Newsreader', Georgia, serif; font-weight: 600; letter-spacing: -0.01em; }
+
+  /* ---- Shell ------------------------------------------------------------ */
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+
+  header.top {
+    border-bottom: 1px solid var(--line);
+    padding: 18px 0;
+    position: sticky; top: 0; z-index: 30;
+    background: rgba(12,15,14,0.85);
+    backdrop-filter: blur(10px);
+  }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand .mark {
+    font-family: 'Newsreader', serif; font-size: 22px; font-weight: 600;
+    color: var(--ink); letter-spacing: -0.02em;
+  }
+  .brand .mark span { color: var(--accent); }
+  .brand .tag { font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.16em; }
+  .top-note { font-size: 11px; color: var(--ink-soft); text-align: right; max-width: 340px; }
+  .top-note b { color: var(--accent); font-weight: 600; }
+
+  /* ---- Hero ------------------------------------------------------------- */
+  .hero { padding: 46px 0 26px; border-bottom: 1px solid var(--line-soft); }
+  .hero h1 { font-size: clamp(28px, 4.6vw, 46px); line-height: 1.08; margin: 0 0 16px; max-width: 18ch; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p.lede { font-size: 15px; color: var(--ink-soft); max-width: 64ch; margin: 0 0 8px; }
+  .distinction {
+    margin-top: 22px; display: inline-flex; align-items: stretch; border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden; font-size: 13px;
+  }
+  .distinction div { padding: 9px 16px; }
+  .distinction .a { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+  .distinction .b { color: var(--ink-soft); border-left: 1px solid var(--line); }
+
+  /* ---- Safety gate ------------------------------------------------------ */
+  .gate-backdrop {
+    position: fixed; inset: 0; background: rgba(6,8,7,0.86); backdrop-filter: blur(4px);
+    z-index: 60; display: flex; align-items: center; justify-content: center; padding: 22px;
+  }
+  .gate {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    max-width: 560px; width: 100%; padding: 30px 30px 26px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  }
+  .gate h2 { font-size: 24px; margin: 0 0 6px; }
+  .gate .kicker { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  .gate p { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 14px; }
+  .gate .rulebox { border: 1px solid var(--line); border-left: 3px solid var(--red); border-radius: var(--radius); padding: 13px 15px; margin: 16px 0; background: var(--panel-2); }
+  .gate .rulebox b { color: var(--ink); }
+  .gate .rulebox span { color: var(--ink-soft); font-size: 13px; }
+  .gate button {
+    margin-top: 8px; width: 100%; font-family: inherit; font-size: 14px; font-weight: 600;
+    background: var(--accent); color: #07140d; border: none; border-radius: var(--radius);
+    padding: 13px; cursor: pointer; letter-spacing: 0.02em; transition: transform .08s ease, background .2s ease;
+  }
+  .gate button:hover { background: #5bd89b; }
+  .gate button:active { transform: translateY(1px); }
+  .gate .fine { font-size: 11px; color: var(--ink-mute); margin-top: 14px; text-align: center; }
+
+  /* ---- Persistent banner ------------------------------------------------ */
+  .banner {
+    background: rgba(224,101,79,0.07); border: 1px solid rgba(224,101,79,0.3);
+    border-radius: var(--radius); padding: 9px 14px; margin: 18px 0 0;
+    font-size: 12px; color: #f0b3a6; display: flex; gap: 9px; align-items: center;
+  }
+  .banner b { color: #ffd9cf; }
+
+  /* ---- Main grid -------------------------------------------------------- */
+  .lab { display: grid; grid-template-columns: 1.55fr 1fr; gap: 18px; padding: 22px 0 60px; align-items: start; }
+  @media (max-width: 900px) { .lab { grid-template-columns: 1fr; } }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .card-head { padding: 13px 16px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: center; justify-content: space-between; }
+  .card-head h3 { font-size: 15px; margin: 0; }
+  .card-head .sub { font-size: 11px; color: var(--ink-mute); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* ---- Scenario rail ---------------------------------------------------- */
+  .scenarios { padding: 14px 16px; border-bottom: 1px solid var(--line-soft); }
+  .scenarios .lbl { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 10px; }
+  .scn-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  @media (max-width: 560px) { .scn-grid { grid-template-columns: 1fr; } }
+  .scn {
+    text-align: left; font-family: inherit; cursor: pointer;
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 11px 12px; color: var(--ink); transition: border-color .2s ease, background .2s ease;
+  }
+  .scn:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .scn .t { font-size: 12.5px; font-weight: 600; display: block; margin-bottom: 3px; }
+  .scn .d { font-size: 11px; color: var(--ink-mute); line-height: 1.4; }
+  .scn:disabled { opacity: 0.4; cursor: default; }
+
+  /* ---- Chat ------------------------------------------------------------- */
+  .chat { height: 460px; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; }
+  .chat::-webkit-scrollbar { width: 8px; }
+  .chat::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+  .msg { max-width: 86%; font-size: 13.5px; line-height: 1.62; }
+  .msg.user { align-self: flex-end; }
+  .msg.r { align-self: flex-start; }
+  .msg .who { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 5px; color: var(--ink-mute); }
+  .msg.user .who { text-align: right; color: var(--ink-mute); }
+  .bubble { padding: 12px 15px; border-radius: var(--radius); border: 1px solid var(--line-soft); white-space: pre-wrap; }
+  .msg.user .bubble { background: var(--user-bubble); border-color: var(--line); }
+  .msg.r .bubble { background: var(--r-bubble); }
+  .msg.r .bubble strong { color: var(--accent); font-weight: 600; }
+  .msg.r.flag .bubble { border-left: 3px solid var(--red); }
+  .msg.r.source .bubble { border-left: 3px solid var(--amber); }
+
+  .typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+  .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-mute); animation: bln 1.2s infinite; }
+  .typing i:nth-child(2){ animation-delay: .2s } .typing i:nth-child(3){ animation-delay: .4s }
+  @keyframes bln { 0%,60%,100%{ opacity:.25; transform: translateY(0) } 30%{ opacity:1; transform: translateY(-3px) } }
+
+  .chat-foot { padding: 12px 16px; border-top: 1px solid var(--line-soft); display: flex; gap: 9px; align-items: center; }
+  .chat-foot input {
+    flex: 1; font-family: inherit; font-size: 13px; background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 13px; color: var(--ink);
+  }
+  .chat-foot input::placeholder { color: var(--ink-mute); }
+  .chat-foot input:focus { outline: none; border-color: var(--accent); }
+  .chat-foot button {
+    font-family: inherit; font-size: 13px; font-weight: 600; background: transparent; color: var(--accent);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 16px; cursor: pointer; transition: border-color .2s;
+  }
+  .chat-foot button:hover { border-color: var(--accent); }
+  .demo-hint { font-size: 11px; color: var(--ink-mute); padding: 0 16px 14px; }
+
+  /* ---- State panel ------------------------------------------------------ */
+  .state-rows { padding: 6px 0; }
+  .srow { display: grid; grid-template-columns: 116px 1fr; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line-soft); align-items: start; }
+  .srow:last-child { border-bottom: none; }
+  .srow .k { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); padding-top: 2px; }
+  .srow .v { font-size: 13px; color: var(--ink); }
+  .srow .v.empty { color: var(--ink-mute); font-style: italic; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; border: 1px solid var(--line); }
+  .pill.green { color: var(--accent); border-color: rgba(70,201,138,0.4); background: var(--accent-dim); }
+  .pill.amber { color: var(--amber); border-color: rgba(217,164,65,0.4); background: rgba(217,164,65,0.1); }
+  .pill.red { color: var(--red); border-color: rgba(224,101,79,0.4); background: rgba(224,101,79,0.1); }
+
+  .snapshot { padding: 16px; border-top: 1px solid var(--line); display: none; }
+  .snapshot.show { display: block; animation: rise .4s ease; }
+  @keyframes rise { from { opacity:0; transform: translateY(8px) } to { opacity:1; transform:none } }
+  .snapshot h4 { font-family: 'Newsreader', serif; font-size: 16px; margin: 0 0 10px; color: var(--accent); }
+  .snapshot ul { margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--ink-soft); }
+  .snapshot li { margin-bottom: 6px; }
+  .snapshot li b { color: var(--ink); }
+  .snapshot .copy { margin-top: 12px; font-family: inherit; font-size: 12px; background: transparent; color: var(--accent); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 12px; cursor: pointer; }
+  .snapshot .copy:hover { border-color: var(--accent); }
+
+  /* ---- Source drawer ---------------------------------------------------- */
+  .sources-card { margin-top: 18px; }
+  .src { padding: 11px 16px; border-bottom: 1px solid var(--line-soft); font-size: 12.5px; }
+  .src:last-child { border-bottom: none; }
+  .src .tier { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-mute); }
+  .src .name { color: var(--ink); }
+  .src a { color: var(--accent); text-decoration: none; }
+  .src a:hover { text-decoration: underline; }
+  .src.t1 { border-left: 3px solid var(--accent); }
+  .src.t5 { border-left: 3px solid var(--red); }
+
+  footer.foot { border-top: 1px solid var(--line); padding: 26px 0 50px; font-size: 11.5px; color: var(--ink-mute); }
+  footer.foot b { color: var(--ink-soft); }
+  footer.foot a { color: var(--accent); text-decoration: none; }
+
+  .reset { font-family: inherit; font-size: 11px; background: transparent; color: var(--ink-mute); border: 1px solid var(--line-soft); border-radius: var(--radius); padding: 5px 10px; cursor: pointer; }
+  .reset:hover { color: var(--ink); border-color: var(--line); }
+</style>
+</head>
+<body>
+
+<!-- ============ SAFETY GATE ============ -->
+<div class="gate-backdrop" id="gate">
+  <div class="gate">
+    <div class="kicker">Before you start</div>
+    <h2>This is a research desk, not a data drop.</h2>
+    <p>This demo shows how the CMMC Readiness Researcher investigates a contractor's situation. It works on the <b style="color:var(--ink)">shape</b> of your environment — what kind of data, where it lives, who touches it — never the sensitive contents.</p>
+    <div class="rulebox">
+      <b>Do not paste CUI, FCI, contract text, drawings, or spec sheets.</b><br>
+      <span>A general-purpose AI tool isn't a FedRAMP-authorized environment for controlled data. The researcher will stop you and explain why if you try — that refusal is the point.</span>
+    </div>
+    <p style="font-size:12px;color:var(--ink-mute)">This is a scripted demonstration. Nothing you type leaves your browser, and no data is stored.</p>
+    <button onclick="enterLab()">I understand — enter the demo</button>
+    <div class="fine">No sign-in · No data stored · Folder-canonical demo mode</div>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="top">
+  <div class="wrap top-row">
+    <div class="brand">
+      <span class="mark">CMMC <span>Readiness Researcher</span></span>
+      <span class="tag">Demo Lab</span>
+    </div>
+    <div class="top-note">A research partner that <b>investigates before it answers</b> — and never asks for the data it's protecting.</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <h1>Most tools hand you a checklist. A researcher asks <em>what you actually handle</em> first.</h1>
+    <p class="lede">Built for small defense contractors facing CMMC / NIST SP 800-171. This is a demonstration of the underlying ICM folder — the researcher reasons about scope, data type, and source authority, refuses controlled data, and ends with a readiness snapshot instead of a wall of controls.</p>
+    <div class="distinction">
+      <div class="a">A researcher investigates.</div>
+      <div class="b">A summarizer recites.</div>
+    </div>
+    <div class="banner">
+      <b>⚠ No controlled data.</b> This desk works on the shape of your environment, not its contents. Don't paste CUI, FCI, contracts, or specs.
+    </div>
+  </section>
+
+  <!-- ============ LAB ============ -->
+  <section class="lab">
+
+    <!-- LEFT: chat -->
+    <div class="card">
+      <div class="card-head">
+        <h3>Readiness Investigation</h3>
+        <button class="reset" onclick="resetLab()">↻ Reset</button>
+      </div>
+
+      <div class="scenarios">
+        <div class="lbl">Run a scripted scenario</div>
+        <div class="scn-grid">
+          <button class="scn" id="scn0" onclick="runScenario(0)">
+            <span class="t">“Prime says we need CMMC”</span>
+            <span class="d">Watch it refuse the control list and find the real question.</span>
+          </button>
+          <button class="scn" id="scn1" onclick="runScenario(1)">
+            <span class="t">“A vendor says we need Rev 3”</span>
+            <span class="d">Watch it weigh the source and catch the version trap.</span>
+          </button>
+          <button class="scn" id="scn2" onclick="runScenario(2)">
+            <span class="t">“Let me paste our spec sheet”</span>
+            <span class="d">Watch it stop a controlled-data spillage cold.</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="chat" id="chat"></div>
+      <div class="demo-hint" id="hint">Pick a scenario above to begin. Each one plays out a real investigative exchange drawn from the researcher's folder.</div>
+
+      <div class="chat-foot">
+        <input id="inp" placeholder="Type here — or try pasting a 'spec sheet' to see the refusal…" onkeydown="if(event.key==='Enter')sendFree()" />
+        <button onclick="sendFree()">Send</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: state + snapshot -->
+    <div>
+      <div class="card">
+        <div class="card-head">
+          <h3>Investigation State</h3>
+          <span class="sub">Live</span>
+        </div>
+        <div class="state-rows" id="state">
+          <div class="srow"><div class="k">Stage</div><div class="v empty" data-f="stage">Not started</div></div>
+          <div class="srow"><div class="k">Data type</div><div class="v empty" data-f="data">Unknown</div></div>
+          <div class="srow"><div class="k">Confidence</div><div class="v empty" data-f="conf">—</div></div>
+          <div class="srow"><div class="k">Systems</div><div class="v empty" data-f="sys">Not yet mapped</div></div>
+          <div class="srow"><div class="k">Likely level</div><div class="v empty" data-f="level">Undetermined</div></div>
+          <div class="srow"><div class="k">Active risk</div><div class="v empty" data-f="risk">—</div></div>
+          <div class="srow"><div class="k">Source tier</div><div class="v empty" data-f="src">—</div></div>
+          <div class="srow"><div class="k">Biggest unknown</div><div class="v empty" data-f="unk">What data you handle</div></div>
+        </div>
+
+        <div class="snapshot" id="snap">
+          <h4>Readiness Snapshot</h4>
+          <ul id="snapbody"></ul>
+          <button class="copy" onclick="copySnap()">Copy snapshot</button>
+        </div>
+      </div>
+
+      <div class="card sources-card">
+        <div class="card-head">
+          <h3>Source Authority</h3>
+          <span class="sub">Why one source beats another</span>
+        </div>
+        <div class="src t1"><div class="tier">Tier 1 · Ground truth</div><div class="name"><a href="https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final" target="_blank" rel="noopener">NIST SP 800-171 Rev 2</a> — the control text itself</div></div>
+        <div class="src"><div class="tier">Tier 2 · Official guidance</div><div class="name"><a href="https://dodcio.defense.gov/CMMC/" target="_blank" rel="noopener">DoD CMMC program</a> · <a href="https://www.acquisition.gov/far/52.204-21" target="_blank" rel="noopener">FAR 52.204-21</a></div></div>
+        <div class="src"><div class="tier">Tier 3 · Accredited practitioner</div><div class="name"><a href="https://cyberab.org/" target="_blank" rel="noopener">The Cyber AB</a> — C3PAOs, registered practitioners</div></div>
+        <div class="src"><div class="tier">Tier 4 · CUI registry</div><div class="name"><a href="https://www.archives.gov/cui/registry/category-list" target="_blank" rel="noopener">NARA CUI categories</a></div></div>
+        <div class="src t5"><div class="tier">Tier 5 · Lowest · flag it</div><div class="name">Vendor marketing & blogs — where most misconceptions start</div></div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="foot">
+    <div class="wrap" style="padding:0">
+      <p><b>What this is.</b> A folder-canonical demonstration of the CMMC Readiness Researcher, an ICM (Interpretable Context Methodology) build. The folder is the brain; this page is a viewer over it. Scenarios are scripted from the researcher's own <code>examples.md</code>.</p>
+      <p><b>What it is not.</b> It does not certify anyone (only a C3PAO or the government does), does not give legal advice, and does not make the binding CUI determination — that comes from your contract and your government customer. For AI on real controlled data, the compliant route is a FedRAMP-authorized deployment, not a tool like this.</p>
+      <p style="margin-top:14px;color:var(--ink-mute)">Built as an applied proof of method · <a href="https://github.com/l-conder/CMMC-Readiness-Researcher" target="_blank" rel="noopener">View the folder on GitHub</a></p>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* =======================================================================
+   FOLDER-CANONICAL DEMO ENGINE
+   Scenarios are transcribed from the researcher's examples.md so the app
+   demonstrates real behavior, not a paraphrase. No network, no storage.
+   ======================================================================= */
+
+const chat = document.getElementById('chat');
+const hint = document.getElementById('hint');
+let busy = false;
+
+/* ---- state panel helpers ---- */
+function setState(field, value, pill) {
+  const el = document.querySelector(`[data-f="${field}"]`);
+  if (!el) return;
+  el.classList.remove('empty');
+  if (pill) { el.innerHTML = `<span class="pill ${pill}">${value}</span>`; }
+  else { el.textContent = value; }
+}
+
+function addMsg(role, text, cls='') {
+  const m = document.createElement('div');
+  m.className = `msg ${role} ${cls}`;
+  const who = role === 'user' ? 'Contractor' : 'Researcher';
+  m.innerHTML = `<div class="who">${who}</div><div class="bubble">${text}</div>`;
+  chat.appendChild(m);
+  chat.scrollTop = chat.scrollHeight;
+  return m;
+}
+
+function typing() {
+  const m = document.createElement('div');
+  m.className = 'msg r';
+  m.innerHTML = `<div class="who">Researcher</div><div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div>`;
+  chat.appendChild(m);
+  chat.scrollTop = chat.scrollHeight;
+  return m;
+}
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+/* play a researcher turn with a typing delay */
+async function rTurn(text, cls='', delay=900) {
+  const t = typing();
+  await wait(delay);
+  t.remove();
+  addMsg('r', text, cls);
+}
+
+/* =======================================================================
+   SCENARIO SCRIPTS  (drawn from examples.md, Examples 1, 3, 2)
+   Each step updates the live state panel so the investigation is visible.
+   ======================================================================= */
+
+const scenarios = [
+  /* 0 — "Prime says we need CMMC"  (Example 1: refuse the checklist) */
+  {
+    steps: [
+      { who:'user', text:`A prime contractor told us we need to be CMMC compliant for a contract. Can you give me the list of controls we have to meet?` },
+      { fn: () => { setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI'); } },
+      { who:'r', text:`I'm going to hold off on the control list for a moment — handing it to you now could send you down the wrong road, and I'd rather save you that.\n\nHere's why. The number of requirements you actually owe isn't fixed; it's decided by what kind of government information you handle. Only <strong>Federal Contract Information</strong> (FCI)? You're likely looking at 15 basic safeguards you assess yourself. <strong>Controlled Unclassified Information</strong> (CUI)? That's the full 110 requirements, and an outside assessor after the rollout phases in.\n\nSo before anything else — the one question that changes everything: <strong>does the contract involve CUI, or only FCI?</strong>` },
+      { who:'user', text:`Honestly I'm not sure. We make small machined parts to the prime's drawings.` },
+      { fn: () => { setState('data','Likely CUI', 'amber'); setState('conf','Low — needs confirmation','amber'); setState('level','Likely Level 2','amber'); setState('risk','Misreading data type'); setState('src','Tier 2 · official', 'green'); setState('stage','2 · Map where it lives'); setState('unk','Where the drawings actually live'); } },
+      { who:'r', text:`That detail matters more than it looks. Technical drawings from a defense prime are often marked CUI — but "often" isn't "always," and the binding call isn't mine or yours. It comes from your contract and the prime's flow-down.\n\nHere's the question to take to them, worded so the answer is clean: <strong>"Does this contract involve CUI, and if so, which CUI category and markings apply?"</strong>\n\nWhile you chase that — tell me where those drawings actually live once they reach you. Email? A shared drive? A machine on the shop floor? That's the next thing that shapes your scope.` },
+      { fn: () => { setState('sys','Email + shop-floor (mapping…)'); } },
+      { who:'snapshot', data: {
+        title:'Readiness Snapshot — preliminary',
+        items:[
+          ['Data type','Likely CUI (technical drawings) — <b>confirm with prime/CO</b>'],
+          ['Likely level','Level 2 (110 requirements) if CUI is confirmed'],
+          ['Binding next step','Ask the contracting officer the CUI-category question, verbatim'],
+          ['Scope to map','Everywhere the drawings land — email, shared drives, shop-floor machines'],
+          ['Open risk','Assuming Level 1 to save effort, then failing assessment on scope'],
+        ]
+      }}
+    ]
+  },
+
+  /* 1 — "Vendor says Rev 3"  (Example 3: weigh source + version trap) */
+  {
+    steps: [
+      { who:'user', text:`A vendor told us we need to be on Rev 3 of 800-171 now since it's the newest, and that we have to buy their platform to hit all the controls. Is that right?` },
+      { fn: () => { setState('stage','Weighing a source claim'); setState('src','Tier 5 · vendor pitch','red'); setState('risk','Building to the wrong revision'); setState('unk','Which revision your contract pins'); } },
+      { who:'r', text:`Two claims tangled together there, and I'd weigh them very differently. Let's pull them apart.\n\nFirst, the version. "Newest, therefore required" isn't how this works — the revision that binds you is the one your <strong>contract and assessment</strong> are pinned to, not whichever NIST published most recently. As things stand, CMMC is anchored to <strong>Revision 2</strong>, and assessors aren't authorized to grade against Rev 3 yet. Build to Rev 3 today and you can show up to a Rev 2 assessment with "unmet" marks against a standard you weren't being graded on.` },
+      { fn: () => { setState('stage','Weighing a source claim · part 2'); } },
+      { who:'r', text:`Second — notice <strong>who's telling you</strong> you must buy their platform. That's a vendor selling a product: the lowest tier of source authority. Tooling genuinely helps with some controls — logging, configuration management, access tracking. But the requirement lives in the control text, not in any one product, and plenty of the 110 are policy and documentation no platform installs for you.\n\nSo the honest read: a tool may help with <em>part</em> of this; nothing requires <em>that specific</em> tool. Want to start by finding your real gaps, so you're buying against evidence instead of a sales pitch?`, cls:'source' },
+      { who:'snapshot', data: {
+        title:'Readiness Snapshot — source check',
+        items:[
+          ['Version that binds you','NIST SP 800-171 <b>Rev 2</b> (CMMC is anchored here today)'],
+          ['Rev 3 status','Real and coming — prepare for it, don\'t build to it as your assessed target'],
+          ['Vendor claim','"Must buy our platform" = Tier 5 source. A tool helps with some controls, not all'],
+          ['Binding next step','Confirm your contract\'s referenced revision against the rule text'],
+          ['Open risk','Spending money against a sales pitch before a real gap analysis'],
+        ]
+      }}
+    ]
+  },
+
+  /* 2 — "Let me paste our spec sheet"  (Example 2: refuse controlled data) */
+  {
+    steps: [
+      { who:'user', text:`Okay, here's the actual data we handle — let me paste the spec sheet so you can tell me if it's CUI: "ASSEMBLY DWG 4471-B, MATERIAL SPEC, TOLERANCE…` },
+      { fn: () => { setState('stage','Data-handling boundary'); setState('risk','Controlled-data spillage', 'red'); setState('src','—'); } },
+      { who:'r', text:`Stop there — and let me explain why, because it matters.\n\nDon't paste that, and clear it from your message if you can. A general-purpose AI tool like this one isn't a FedRAMP-authorized environment, so running potentially controlled information through it would itself be a <strong>spillage</strong> — exactly the kind of incident the rules you're working toward exist to prevent. I never want to be the reason you have one.`, cls:'flag' },
+      { fn: () => { setState('stage','Redirect to safe abstraction'); setState('risk','Contained ✓','green'); setState('data','Technical data (abstract)','amber'); } },
+      { who:'r', text:`The good news: I don't need the contents to help you. I work on the <strong>shape</strong> of your environment, not its sensitive details.\n\nSo instead of the document — what <em>category</em> is it (technical data, a contract deliverable, something else), and <em>where does it live</em>: which system, which cloud, whose email? That's everything I need to reason about scope, and none of it is controlled information.\n\nAnd if you ever do need AI on real controlled data, there's a compliant path — a FedRAMP-authorized deployment inside your boundary, not a tool like this. Different conversation, but the door exists.` },
+      { who:'snapshot', data: {
+        title:'Readiness Snapshot — boundary held',
+        items:[
+          ['What happened','A potential CUI paste was refused before processing — spillage prevented'],
+          ['How to proceed safely','Describe data by <b>category</b> and <b>location</b>, never contents'],
+          ['Why it matters','A tool that ingested CUI would cause the violation it claims to prevent'],
+          ['Compliant AI-on-CUI path','FedRAMP-authorized deployment, with the tradeoff of older model versions'],
+          ['Open risk','Treating any general AI tool as safe for controlled data'],
+        ]
+      }}
+    ]
+  }
+];
+
+/* ---- scenario runner ---- */
+async function runScenario(idx) {
+  if (busy) return;
+  busy = true;
+  hint.style.display = 'none';
+  document.getElementById('snap').classList.remove('show');
+  for (let i=0;i<3;i++) document.getElementById('scn'+i).disabled = true;
+
+  for (const step of scenarios[idx].steps) {
+    if (step.fn) { step.fn(); await wait(350); continue; }
+    if (step.who === 'user') { addMsg('user', step.text); await wait(650); }
+    else if (step.who === 'r') { await rTurn(step.text, step.cls||'', 1000); await wait(300); }
+    else if (step.who === 'snapshot') { showSnapshot(step.data); await wait(200); }
+  }
+  for (let i=0;i<3;i++) document.getElementById('scn'+i).disabled = false;
+  busy = false;
+}
+
+/* ---- snapshot render ---- */
+let lastSnap = '';
+function showSnapshot(data) {
+  const body = document.getElementById('snapbody');
+  body.innerHTML = '';
+  let txt = data.title + '\n\n';
+  data.items.forEach(([k,v]) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<b>${k}:</b> ${v}`;
+    body.appendChild(li);
+    txt += `• ${k}: ${v.replace(/<[^>]+>/g,'')}\n`;
+  });
+  document.querySelector('#snap h4').textContent = data.title;
+  lastSnap = txt;
+  document.getElementById('snap').classList.add('show');
+  chat.scrollTop = chat.scrollHeight;
+}
+function copySnap() {
+  navigator.clipboard.writeText(lastSnap).then(()=>{
+    const b = document.querySelector('.snapshot .copy');
+    const o = b.textContent; b.textContent = 'Copied ✓';
+    setTimeout(()=>b.textContent=o, 1600);
+  });
+}
+
+/* =======================================================================
+   FREE-TEXT INPUT — deterministic, safe.
+   Detects apparent controlled-data pastes and demonstrates the refusal.
+   Anything else gets the investigative opening move.
+   ======================================================================= */
+const CUI_TRIGGERS = /\b(dwg|drawing|spec sheet|tolerance|material spec|assembly|part number|nsn|cage code|classified|secret|itar|export.?controlled|cui\/\/|distribution statement)\b/i;
+
+async function sendFree() {
+  if (busy) return;
+  const inp = document.getElementById('inp');
+  const v = inp.value.trim();
+  if (!v) return;
+  inp.value = '';
+  hint.style.display = 'none';
+  busy = true;
+  addMsg('user', v.length > 240 ? v.slice(0,240)+'…' : v);
+  await wait(500);
+
+  if (CUI_TRIGGERS.test(v) || v.length > 400) {
+    setState('stage','Data-handling boundary'); setState('risk','Controlled-data spillage','red');
+    await rTurn(`Stop there — don't paste that, and clear it if you can. A general-purpose AI tool isn't a FedRAMP-authorized environment, so putting potentially controlled information through it would itself be a <strong>spillage</strong> — the exact thing CMMC exists to prevent.\n\nTell me instead: what <em>category</em> is that information, and <em>where does it live</em>? The shape of your environment is all I need, and none of it is controlled data.`, 'flag', 1000);
+    setState('risk','Contained ✓','green');
+  } else {
+    setState('stage','1 · Establish the data'); setState('unk','Whether you handle CUI or only FCI');
+    await rTurn(`Good — let's start there, and one thing up front so you can relax: I never need your actual sensitive data, just its <strong>type</strong> and where it lives.\n\nThe question that shapes everything else: does your work involve <strong>CUI</strong> (the sensitive category — the full 110 requirements) or only <strong>FCI</strong> (the basic tier — 15 safeguards)? If you're not sure, tell me what the work is and who the customer is, and we'll reason toward the right question for your contracting officer.\n\n<em>(This is a scripted demo — for a full back-and-forth, drop the folder into a Claude Project. The three scenarios above show the researcher's full range.)</em>`, '', 1000);
+  }
+  busy = false;
+}
+
+/* ---- gate + reset ---- */
+function enterLab(){ document.getElementById('gate').style.display = 'none'; }
+function resetLab(){
+  chat.innerHTML = ''; hint.style.display = 'block';
+  document.getElementById('snap').classList.remove('show');
+  const defaults = [['stage','Not started','empty'],['data','Unknown','empty'],['conf','—','empty'],['sys','Not yet mapped','empty'],['level','Undetermined','empty'],['risk','—','empty'],['src','—','empty'],['unk','What data you handle','empty']];
+  defaults.forEach(([f,val])=>{ const el=document.querySelector(`[data-f="${f}"]`); el.className='v empty'; el.textContent=val; });
+}
+</script>
+</body>
+</html>
