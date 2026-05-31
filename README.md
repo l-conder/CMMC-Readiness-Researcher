@@ -85,16 +85,6 @@ cmmc-readiness-researcher/
     └── index.html              # The demo web app (served via GitHub Pages)
 ```
 
-> **A note on structure.** Canonical ICM (per Van Clief's methodology repo) is a
-> *staged pipeline* — numbered stage folders, each with a CONTEXT.md contract,
-> output feeding the next stage. This build deliberately adapts that into a flat
-> *persona-plus-knowledge* structure, because a readiness researcher is a
-> conversational investigator, not a linear workflow: its stages move fluidly with
-> the contractor's answers rather than running in fixed order. The five
-> investigative stages therefore live as a sequence inside `rules.md` rather than
-> as numbered folders. Same ICM principles — one job per file, plain-text
-> interface, layered context loading, fixed character vs. variable working layer —
-> applied to a conversational rather than a pipeline workflow.
 
 The build separates what never changes (the researcher's character and knowledge)
 from what changes every conversation (what it learns about you). That separation
