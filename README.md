@@ -24,9 +24,10 @@ Hand most AI tools the word "CMMC" and they print the 110 controls of NIST
 decides your entire obligation: *what kind of government data do you actually
 handle?* Handle only Federal Contract Information and you may owe 15 basic
 safeguards; handle Controlled Unclassified Information and you are likely in the
-Level 2 world of 110 NIST SP 800-171 requirements, with the assessment path
-depending on the contract. A control list handed over before that's settled sends
-you to climb the wrong mountain.
+Level 2 world of 110 NIST SP 800-171 requirements, with the assessment path —
+self-assessment or third-party certification — depending on the contract. A
+control list handed over before that's settled sends you to climb the wrong
+mountain.
 
 This researcher refuses to do that. It asks before it answers, weighs your sources
 against the rule text, flags what's genuinely uncertain instead of faking
@@ -38,19 +39,17 @@ ask yourself.
 ## How to use it (cold, in five minutes)
 
 1. **Create a new Claude Project.**
-2. **Paste `PROJECT_INSTRUCTIONS.md` into the project instructions.** That gives
-   Claude the load order, safety boundaries, and response contract.
-3. **Add these files to the project's knowledge.** The whole folder. Start a
+2. **Add these files to the project's knowledge.** The whole folder. Start a
    conversation and the researcher is live — no setup, no prompt-engineering on
    your end.
-4. **Tell it your situation in plain language.** "A prime told us we need CMMC for
+3. **Tell it your situation in plain language.** "A prime told us we need CMMC for
    a contract and I don't know where to start" is a perfect opening. So is "we
    handle some drawings for a Navy program and I'm not sure if that's CUI."
-5. **Expect questions back, not a checklist.** It will ask what data you handle,
+4. **Expect questions back, not a checklist.** It will ask what data you handle,
    where it lives, and who touches it — one question at a time, with the reason
    attached — before it says anything about controls or levels. That's the design
    working, not the tool stalling.
-6. **Use the closing summary.** At the end of an investigation it pulls together a
+5. **Use the closing summary.** At the end of an investigation it pulls together a
    readiness picture — your likely data type, your scope boundary, your likely
    level, your top gaps, and your next concrete step — that you can carry into a
    conversation with a real assessor or your contracting officer.
@@ -58,16 +57,44 @@ ask yourself.
 If you only do one thing: describe your actual situation and let it interrogate
 it. The value is in the questions.
 
-## Live demo
-
-Open `docs/index.html` to try the scripted Demo Lab. It is intentionally
-deterministic: no login, no API key, no data leaving the browser. The demo is not
-the researcher itself; it is a proof surface showing the folder's safety boundary,
-source weighing, first-question behavior, and readiness snapshot pattern.
-
 ---
 
 ## What's in the folder, and why
+
+```
+cmmc-readiness-researcher/
+├── PROJECT_INSTRUCTIONS.md     # Layer 0 — load first: order, boundaries, response contract
+├── identity.md                 # Character — who the researcher is, and won't be
+├── rules.md                    # Engine — the 5-stage investigative sequence, turn by turn
+├── examples.md                 # Demonstrated behavior — summarizer (wrong) vs researcher (right)
+├── JUDGE_GUIDE.md              # Adversarial prompts + pass/fail criteria
+├── SPEC.md                     # Build spec for the optional web demo
+├── README.md                   # You are here
+├── reference/                  # Knowledge (fixed) + the variable layer
+│   ├── inquiry-method.md       #   how it asks — OARS / information-gathering framework
+│   ├── glossary.md             #   acronyms wired to the decision each one affects
+│   ├── levels-and-scoping.md   #   data type → level → assessment boundary
+│   ├── artifacts-and-scoring.md#   SSP, POA&M, SPRS; hard stops vs deferrable gaps
+│   ├── rev2-vs-rev3.md         #   the "check the date, weigh the source" lesson
+│   ├── source-authority.md     #   how it ranks sources and flags uncertainty
+│   ├── source-list.md          #   official sources to confirm against
+│   ├── common-failure-modes.md #   the traps it actively probes for
+│   ├── readiness-artifacts.md  #   safe output shapes (snapshot, scope map, etc.)
+│   └── intake.md               #   VARIABLE layer — per-conversation scratchpad (~800 tokens)
+└── docs/
+    └── index.html              # The demo web app (served via GitHub Pages)
+```
+
+> **A note on structure.** Canonical ICM (per Van Clief's methodology repo) is a
+> *staged pipeline* — numbered stage folders, each with a CONTEXT.md contract,
+> output feeding the next stage. This build deliberately adapts that into a flat
+> *persona-plus-knowledge* structure, because a readiness researcher is a
+> conversational investigator, not a linear workflow: its stages move fluidly with
+> the contractor's answers rather than running in fixed order. The five
+> investigative stages therefore live as a sequence inside `rules.md` rather than
+> as numbered folders. Same ICM principles — one job per file, plain-text
+> interface, layered context loading, fixed character vs. variable working layer —
+> applied to a conversational rather than a pipeline workflow.
 
 The build separates what never changes (the researcher's character and knowledge)
 from what changes every conversation (what it learns about you). That separation
@@ -75,8 +102,6 @@ is the methodology — Interpretable Context Methodology — made visible.
 
 **The character (fixed — this is *who the researcher is*):**
 
-- `PROJECT_INSTRUCTIONS.md` — paste this into Claude Project instructions so the
-  folder loads with the intended behavior and safety boundaries.
 - `identity.md` — who the researcher is, what it covers, and the hard edges of
   what it refuses to do.
 - `rules.md` — the engine: the five-stage investigative sequence, the data-handling
@@ -84,14 +109,6 @@ is the methodology — Interpretable Context Methodology — made visible.
   turn.
 - `examples.md` — three before-and-after interactions showing the summarizer's
   wrong answer beside the researcher's right one. Voice and behavior, demonstrated.
-- `JUDGE_GUIDE.md` — adversarial prompts and pass/fail criteria for testing
-  whether the folder really investigates.
-- `DEEP_TEST.md` — a realistic machine-shop scenario that stress-tests scoping,
-  source authority, evidence, POA&M judgment, and safe data handling.
-- `MULTI_TURN_TEST.md` — the same kind of pressure tested as a real drip-feed
-  conversation, one messy detail at a time.
-- `SPEC.md` — the build spec for an optional interactive web demo that proves the
-  folder's behavior without replacing it.
 
 **The knowledge (fixed — this is *what the researcher knows*), in `reference/`:**
 
@@ -107,12 +124,6 @@ is the methodology — Interpretable Context Methodology — made visible.
   lesson in the domain.
 - `source-authority.md` — how the researcher ranks what it's told and flags what's
   uncertain.
-- `source-list.md` — the official sources the researcher points users back to when
-  a deadline, clause, score, or assessment path needs current confirmation.
-- `common-failure-modes.md` — the recurring traps the researcher actively looks
-  for: email CUI, MSP scope, Rev. 3 confusion, tool shortcuts, weak evidence.
-- `readiness-artifacts.md` — safe output shapes for intake summaries, scope maps,
-  source-weighing notes, evidence gaps, and readiness snapshots.
 
 **The variable layer (changes every conversation — this is *what it learns about
 you*):**
