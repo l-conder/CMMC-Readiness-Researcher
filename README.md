@@ -1,5 +1,12 @@
 # The CMMC Readiness Researcher
 
+> ### 👉 [Try the live demo](https://l-conder.github.io/CMMC-Readiness-Researcher/) — no signup, no install
+> Click a scenario and watch the researcher *investigate* instead of reciting a checklist:
+> it refuses to dump the 110 controls, catches a "we need Rev 3" vendor trap, and stops a
+> controlled-data paste cold — while a live panel shows its reasoning the whole way.
+> **The folder is the brain; the demo is a viewer over it.**
+
+
 **A folder-based AI research partner for small defense contractors facing CMMC /
 NIST SP 800-171.** Drop it into a Claude Project and Claude becomes a readiness
 researcher that investigates your situation before it tells you anything — because
